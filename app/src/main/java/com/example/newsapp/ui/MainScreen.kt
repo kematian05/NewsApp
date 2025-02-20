@@ -1,7 +1,6 @@
 package com.example.newsapp.ui
 
 import android.annotation.SuppressLint
-import android.app.Application
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -9,14 +8,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.liveData
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.newsapp.api.NewsApi
 import com.example.newsapp.data.domain.DatabaseModule
 import com.example.newsapp.data.domain.GetArticlesUseCase
 import com.example.newsapp.data.domain.GetSavedArticleUseCase
@@ -27,12 +25,11 @@ import com.example.newsapp.data.repository.NewsRepository
 import com.example.newsapp.data.repository.SavedArticlesRepository
 import com.example.newsapp.data.responses.Article
 import com.example.newsapp.data.responses.Language
-import com.example.newsapp.db.SavedArticleDao
-import com.example.newsapp.db.SavedArticleDatabase
+import com.example.newsapp.utils.isConnectedToTheInternet
 import com.example.newsapp.viewModels.NewsViewModel
 import com.example.newsapp.viewModels.SavedNewsViewModel
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
+import kotlinx.coroutines.CoroutineScope
 import java.net.URLDecoder
 import java.net.URLEncoder
 
@@ -41,15 +38,34 @@ import java.net.URLEncoder
 fun MainScreen() {
     val navController = rememberNavController()
     val context = LocalContext.current.applicationContext
+
     val savedNewsViewModel = SavedNewsViewModel(
         getSavedArticleUseCase = GetSavedArticleUseCase(
-            SavedArticlesRepository(DatabaseModule().provideSavedArticleDao(DatabaseModule().provideDatabase(context)))
+            SavedArticlesRepository(
+                DatabaseModule().provideSavedArticleDao(
+                    DatabaseModule().provideDatabase(
+                        context
+                    )
+                )
+            )
         ),
         saveArticleUseCase = SaveArticleUseCase(
-            SavedArticlesRepository(DatabaseModule().provideSavedArticleDao(DatabaseModule().provideDatabase(context)))
+            SavedArticlesRepository(
+                DatabaseModule().provideSavedArticleDao(
+                    DatabaseModule().provideDatabase(
+                        context
+                    )
+                )
+            )
         ),
         isArticleSavedUseCase = IsArticleSavedUseCase(
-            SavedArticlesRepository(DatabaseModule().provideSavedArticleDao(DatabaseModule().provideDatabase(context)))
+            SavedArticlesRepository(
+                DatabaseModule().provideSavedArticleDao(
+                    DatabaseModule().provideDatabase(
+                        context
+                    )
+                )
+            )
         )
     )
 
@@ -74,30 +90,37 @@ fun MainScreen() {
 
     val newsViewModel = NewsViewModel(
         getArticlesUseCase = GetArticlesUseCase(
-            NewsRepository(newsApi = NetworkModule().provideNewsApi(NetworkModule().provideRetrofit()))
+            NewsRepository(newsApi = NetworkModule().provideNewsApi(NetworkModule().provideRetrofit())),
         ),
     )
 
-    NavHost(navController = navController, startDestination = "home") {
+    val currentRoute = remember { mutableStateOf("") }
+
+    NavHost(navController = navController, startDestination = if (isConnectedToTheInternet(context = context)) "home" else "saved") {
         composable("home") {
             val onLanguageChange: (Language) -> Unit = { language ->
-                newsViewModel.changeLanguage(language = language, context = context)
+                newsViewModel.changeLanguage(language = language)
             }
 
             val onSearchTextChange: (String) -> Unit = { query ->
                 newsViewModel.onSearchTextChanged(text = query)
             }
 
-            val state by newsViewModel.state.collectAsStateWithLifecycle()
+            val onSearchSubmit: (String) -> Unit = { query ->
+                newsViewModel.onSearchSubmit(text = query)
+            }
 
+            val state by newsViewModel.state.collectAsStateWithLifecycle()
+            currentRoute.value = "home"
             HomeScreen(
                 state = state,
-                navController = navController,
                 onGoToHome = onGoToHome,
                 onGoToSaved = onGoToSaved,
                 onGoToDetails = onGoToDetails,
                 onLanguageChange = onLanguageChange,
                 onSearchTextChange = onSearchTextChange,
+                onSearchSubmit = onSearchSubmit,
+                currentRoute = currentRoute.value,
                 context = context
             )
         }
@@ -136,13 +159,13 @@ fun MainScreen() {
         }
         composable("saved") {
             val state by savedNewsViewModel.state.collectAsStateWithLifecycle()
-
+            currentRoute.value = "saved"
             SavedScreen(
-                navController = navController,
                 onGoToHome = onGoToHome,
                 onGoToSaved = onGoToSaved,
                 onGoToDetails = onGoToDetails,
                 state = state,
+                currentRoute = currentRoute.value,
                 context = context
             )
         }

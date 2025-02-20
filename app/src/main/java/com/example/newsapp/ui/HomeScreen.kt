@@ -34,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,7 +56,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
@@ -65,16 +65,18 @@ import com.example.newsapp.data.responses.Language
 import com.example.newsapp.utils.disableSplitMotionEvents
 import com.example.newsapp.utils.maxScrollFlingBehavior
 import com.example.newsapp.viewModels.HomeState
+import kotlinx.coroutines.delay
 
 @Composable
 fun HomeScreen(
     state: HomeState,
-    navController: NavController,
     onGoToHome: () -> Unit,
     onGoToSaved: () -> Unit,
     onGoToDetails: (Article) -> Unit,
     onLanguageChange: (Language) -> Unit,
     onSearchTextChange: (String) -> Unit,
+    onSearchSubmit: (String) -> Unit,
+    currentRoute: String,
     context: Context
 ) {
     if (state.isLoading) {
@@ -88,7 +90,7 @@ fun HomeScreen(
                     BottomAppBar(
                         onGoToHome = onGoToHome,
                         onGoToSaved = onGoToSaved,
-                        navController = navController
+                        currentRoute = currentRoute
                     )
                 },
                 topBar = {
@@ -113,12 +115,12 @@ fun HomeScreen(
                         Search(
                             state = state,
                             onSearchTextChange = onSearchTextChange,
+                            onSearchSubmit = onSearchSubmit,
                             context = context
                         )
                     }
                     item {
                         DropDownMenu(
-                            state = state,
                             onLanguageChange = onLanguageChange,
                             context = context
                         )
@@ -250,7 +252,12 @@ fun LatestNewsFeed(state: HomeState, onGoToDetails: (Article) -> Unit, context: 
 }
 
 @Composable
-fun Search(state: HomeState, onSearchTextChange: (String) -> Unit, context: Context) {
+fun Search(
+    state: HomeState,
+    onSearchTextChange: (String) -> Unit,
+    onSearchSubmit: (String) -> Unit,
+    context: Context
+) {
     val keyboardController = LocalSoftwareKeyboardController.current
     TextField(value = state.searchQuery, onValueChange = {
         onSearchTextChange(it)
@@ -272,16 +279,21 @@ fun Search(state: HomeState, onSearchTextChange: (String) -> Unit, context: Cont
         ),
         keyboardActions = KeyboardActions(
             onDone = {
+                onSearchSubmit(state.searchQuery)
                 keyboardController?.hide()
             }
         )
     )
+
+    LaunchedEffect(key1 = state.searchQuery) {
+        delay(1000)
+        onSearchSubmit(state.searchQuery)
+    }
 }
 
 @Composable
 fun DropDownMenu(
     modifier: Modifier = Modifier,
-    state: HomeState,
     onLanguageChange: (Language) -> Unit,
     context: Context
 ) {
@@ -323,6 +335,6 @@ fun DropDownMenu(
 @Composable
 fun Testing() {
 //    BottomAppBar(navController = NavController(LocalContext.current))
-    DropDownMenu(state = HomeState(), onLanguageChange = {}, context = LocalContext.current)
+    DropDownMenu(onLanguageChange = {}, context = LocalContext.current)
 //    HomeScreen(navController = NavController(LocalContext.current), viewModel = NewsViewModel())
 }

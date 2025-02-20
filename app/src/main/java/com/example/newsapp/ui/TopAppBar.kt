@@ -1,6 +1,7 @@
 package com.example.newsapp.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -27,7 +28,6 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun TopAppBar() {
-//    val selectedLanguage = viewModel.selectedLanguage.collectAsState()
     Column(
         modifier = Modifier
 //            .systemBarsPadding()
@@ -48,7 +48,7 @@ fun TopAppBar() {
             )
             Text(
                 text = "News Catcher", style = TextStyle(
-                    fontSize = 22.sp, color = Color.Black, fontWeight = FontWeight.Bold
+                    fontSize = 22.sp, color = if (isSystemInDarkTheme()) Color.White else Color.Black, fontWeight = FontWeight.Bold
                 ), modifier = Modifier
 //                    .padding(8.dp)
                     .align(Alignment.CenterVertically)

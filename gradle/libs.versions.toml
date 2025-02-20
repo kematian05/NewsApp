@@ -1,5 +1,6 @@
 [versions]
 agp = "8.8.1"
+androidxAppcompat = "{latest_version}"
 coilCompose = "3.1.0"
 composeVersion = "1.0.0-beta01"
 converterGson = "2.9.0"
@@ -35,6 +36,7 @@ navigationUiKtx = "2.8.6"
 animationCoreAndroid = "1.7.6"
 
 [libraries]
+androidx-appcompat-vlatestversion = { module = "androidx.appcompat:appcompat", version.ref = "androidxAppcompat" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationComposeVersion" }
 androidx-lifecycle-runtime-ktx-v251 = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtxVersion" }

@@ -1,6 +1,8 @@
 package com.example.newsapp.viewModels
 
+import androidx.compose.ui.text.input.TextFieldValue
 import com.example.newsapp.data.responses.Article
+import kotlinx.coroutines.Job
 
 data class HomeState(
     val isLoading: Boolean = false,

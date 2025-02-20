@@ -184,7 +184,6 @@ fun NewsDetail(
                     .align(Alignment.End))
                 Text(
                     text = article.description,
-//                    text = "Australia, Britain, Canada and the United States have imposed outright bans on Russian oil purchases following Moscow's invasion of Ukraine, but members of the European Union are split.",
                     maxLines = 5, style = TextStyle(
                         color = Color.Black,
                         fontSize = 17.sp,
@@ -196,7 +195,6 @@ fun NewsDetail(
                 )
                 Text(
                     text = article.content,
-//                    text = "(Reuters) - Australia, Britain, Canada and the United States have imposed outright bans on Russian oil purchases following Moscow's invasion of Ukraine, but members of the European Union are split.EU foreign ministers failed to agree on Monday on sanctioning Russian gas and oil supplies, which account for 40% and 27% of the bloc's total use of those commodities respectively.Germany, the EU's top user of Russian crude oil and the Netherlands, a key trading hub, argue that the EU couldn't cut its dependence on Russian supplies overnight.",
                     style = TextStyle(
                         color = Color(0xFF89969C), fontSize = 12.sp, textAlign = TextAlign.Left
                     ), modifier = Modifier

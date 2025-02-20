@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -88,7 +89,7 @@ fun NewsCard(article: Article, onGoToDetails: (Article) -> Unit, context: Contex
             Text(
                 text = article.title,
                 style = TextStyle(
-                    color = Color.Black,
+                    color = if (isSystemInDarkTheme()) Color.White else Color.Black,
                     fontSize = 16.sp,
                     fontFamily = FontFamily(Font(R.font.inter, FontWeight.Bold)),
                     fontWeight = FontWeight.Bold
@@ -119,7 +120,7 @@ fun NewsCard(article: Article, onGoToDetails: (Article) -> Unit, context: Contex
                         result.removeSuffix(",")
                     } ?: "Vusat Orujov",
                     style = TextStyle(
-                        color = Color.Black, fontSize = 12.sp, fontWeight = FontWeight.Bold
+                        color = if (isSystemInDarkTheme()) Color.White else Color.Black, fontSize = 12.sp, fontWeight = FontWeight.Bold
                     ), modifier = Modifier.padding(top = 4.dp)
                 )
             }

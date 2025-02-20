@@ -25,11 +25,11 @@ import com.example.newsapp.viewModels.SavedState
 
 @Composable
 fun SavedScreen(
-    navController: NavController,
     onGoToHome: () -> Unit,
     onGoToSaved: () -> Unit,
     onGoToDetails: (Article) -> Unit,
     state: SavedState,
+    currentRoute: String,
     context: Context
 ) {
     Log.d("SavedScreen", "Saved articles: ${state.savedArticles.size}")
@@ -39,7 +39,7 @@ fun SavedScreen(
                 BottomAppBar(
                     onGoToHome = onGoToHome,
                     onGoToSaved = onGoToSaved,
-                    navController = navController
+                    currentRoute = currentRoute
                 )
             },
             topBar = {

@@ -2,6 +2,8 @@ package com.example.newsapp.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,7 +23,10 @@ import androidx.navigation.NavController
 import com.example.newsapp.R
 
 @Composable
-fun BottomAppBar(onGoToHome: () -> Unit, onGoToSaved: () -> Unit, navController: NavController) {
+fun BottomAppBar(onGoToHome: () -> Unit, onGoToSaved: () -> Unit, currentRoute: String) {
+
+    val isDarkTheme = isSystemInDarkTheme()
+
     Column(
         modifier = Modifier
             .navigationBarsPadding()
@@ -30,7 +35,7 @@ fun BottomAppBar(onGoToHome: () -> Unit, onGoToSaved: () -> Unit, navController:
             modifier = Modifier.fillMaxWidth()
         ) {
             drawLine(
-                color = Color.Black,
+                color = if (isDarkTheme) Color.White else Color.Black,
                 start = Offset(0f, 0f),
                 end = Offset(size.width, 0f),
                 strokeWidth = 1.dp.toPx()
@@ -38,6 +43,7 @@ fun BottomAppBar(onGoToHome: () -> Unit, onGoToSaved: () -> Unit, navController:
         }
         Row(
             modifier = Modifier
+                .background(if (isDarkTheme) Color.DarkGray else Color.White)
                 .padding(8.dp)
                 .fillMaxWidth()
                 .align(Alignment.CenterHorizontally),
@@ -48,22 +54,26 @@ fun BottomAppBar(onGoToHome: () -> Unit, onGoToSaved: () -> Unit, navController:
                 onGoToHome()
             }) {
                 Image(
-                    painter = if (navController.currentBackStackEntry?.destination?.route == "home") {
+                    painter = if (currentRoute == "home") {
                         painterResource(id = R.drawable.home_filled)
                     } else {
                         painterResource(id = R.drawable.home)
-                    }, contentDescription = "News Catcher", modifier = Modifier.size(24.dp)
+                    }, contentDescription = "News Catcher", modifier = Modifier
+                        .size(24.dp)
+                        .background(if (isDarkTheme) Color.DarkGray else Color.White)
                 )
             }
             IconButton(onClick = {
                 onGoToSaved()
             }) {
                 Image(
-                    painter = if (navController.currentBackStackEntry?.destination?.route == "saved") {
+                    painter = if (currentRoute == "saved") {
                         painterResource(id = R.drawable.saved_filled)
                     } else {
                         painterResource(id = R.drawable.saved)
-                    }, contentDescription = "News Catcher", modifier = Modifier.size(24.dp)
+                    }, contentDescription = "News Catcher", modifier = Modifier
+                        .size(24.dp)
+                        .background(if (isDarkTheme) Color.DarkGray else Color.White)
                 )
             }
         }

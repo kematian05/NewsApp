@@ -40,11 +40,11 @@ class SavedNewsViewModel @Inject constructor(
     }
 
     private suspend fun getSavedArticles() {
-        _state.update { old ->
-            old.copy(
-                savedArticles = getSavedArticleUseCase.invoke()
-            )
-        }
+        getSavedArticleUseCase.invoke(
+            onSuccess = { savedArticles ->
+                _state.update { it.copy(savedArticles = savedArticles) }
+            }
+        )
     }
 
     suspend fun isArticleSaved(article: Article): Boolean {
