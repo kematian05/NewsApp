@@ -82,7 +82,14 @@ fun HomeScreen(
     if (state.isLoading) {
         LoadingScreen(context = context)
     } else if (state.error.isNotEmpty()) {
-        Text(text = state.error)
+        ErrorScreen(
+            errorMessage = state.error,
+            onRetry = {
+                onGoToHome()
+            },
+            context = context
+        )
+
     } else {
         MaterialTheme {
             Scaffold(
@@ -165,7 +172,6 @@ fun LatestNewsCard(
     onGoToDetails: (Article) -> Unit,
     context: Context
 ) {
-//    val selectedLanguage = viewModel.selectedLanguage.collectAsState()
     Box(
         modifier = Modifier
             .padding(top = 8.dp, start = 16.dp, end = 16.dp, bottom = 8.dp)
@@ -197,10 +203,6 @@ fun LatestNewsCard(
                 )
         ) {
             Text(
-//                text = when (selectedLanguage.value) {
-//                    Language.ENGLISH -> context.getString(R.string.news)
-//                    Language.RUSSIAN -> context.getString(R.string.news)
-//                },
                 text = context.getString(R.string.news),
                 style = TextStyle(color = Color.Black, fontSize = 12.sp),
                 modifier = Modifier

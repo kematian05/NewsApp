@@ -103,11 +103,9 @@ fun NewsDetail(
         ) {
             GlideImage(
                 model = article.urlToImage,
-//                model = R.drawable.test,
                 failure = placeholder(R.drawable.test),
                 loading = placeholder(R.drawable.test),
                 contentDescription = article.description,
-//                contentDescription = "test",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )

@@ -9,7 +9,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.liveData
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -29,7 +28,6 @@ import com.example.newsapp.utils.isConnectedToTheInternet
 import com.example.newsapp.viewModels.NewsViewModel
 import com.example.newsapp.viewModels.SavedNewsViewModel
 import com.google.gson.Gson
-import kotlinx.coroutines.CoroutineScope
 import java.net.URLDecoder
 import java.net.URLEncoder
 
@@ -70,9 +68,11 @@ fun MainScreen() {
     )
 
     val onGoToHome: () -> Unit = {
-        if (navController.currentBackStackEntry?.destination?.route != "home") {
-            navController.popBackStack()
-            navController.navigate("home")
+        if (isConnectedToTheInternet(context = context)) {
+            if (navController.currentBackStackEntry?.destination?.route != "home") {
+                navController.popBackStack()
+                navController.navigate("home")
+            }
         }
     }
 

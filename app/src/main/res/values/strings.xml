@@ -47,4 +47,5 @@
     <string name="search">Search</string>
     <string name="news">News</string>
     <string name="finance">Finance</string>
+    <string name="retry">Retry</string>
 </resources>

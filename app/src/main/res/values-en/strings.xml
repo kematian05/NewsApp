@@ -5,4 +5,5 @@
     <string name="search">Search</string>
     <string name="finance">Finance</string>
     <string name="news">News</string>
+    <string name="retry">Retry</string>
 </resources>

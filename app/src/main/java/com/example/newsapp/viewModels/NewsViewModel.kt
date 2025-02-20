@@ -1,17 +1,12 @@
 package com.example.newsapp.viewModels
 
-import android.content.Context
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.runtime.LaunchedEffect
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.newsapp.data.domain.GetArticlesUseCase
-import com.example.newsapp.data.responses.Article
 import com.example.newsapp.data.responses.Language
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -27,7 +22,6 @@ class NewsViewModel @Inject constructor(private val getArticlesUseCase: GetArtic
         loadHeadlines()
         loadArticles("Trump")
     }
-
 
     fun onSearchTextChanged(text: String) {
         _state.update { old ->
@@ -114,12 +108,10 @@ class NewsViewModel @Inject constructor(private val getArticlesUseCase: GetArtic
         }
     }
 
-
     fun changeLanguage(language: Language) {
         val appLocale = LocaleListCompat.forLanguageTags(language.code)
         AppCompatDelegate.setApplicationLocales(appLocale)
     }
-
 
     private fun searchArticles(query: String) {
         Log.e("NewsViewModel", "Searching articles for query: $query")
