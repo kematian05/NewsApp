@@ -1,8 +1,9 @@
 [versions]
-agp = "8.8.0"
+agp = "8.8.1"
 coilCompose = "3.1.0"
 composeVersion = "1.0.0-beta01"
 converterGson = "2.9.0"
+hiltAndroid = "2.48.1"
 hiltAndroidVersion = "2.44"
 hiltNavigationComposeVersion = "1.0.0"
 kotlin = "2.0.0"
@@ -24,12 +25,14 @@ retrofit = "2.9.0"
 roomCompiler = "2.6.1"
 roomKtx = "2.4.0-alpha03"
 roomRuntime = "2.6.1"
+shimmerComposeVersion = "1.0.2"
 uiTextGoogleFonts = "1.7.7"
 material = "1.12.0"
 appcompat = "1.7.0"
 constraintlayout = "2.2.0"
 navigationFragmentKtx = "2.8.6"
 navigationUiKtx = "2.8.6"
+animationCoreAndroid = "1.7.6"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -47,6 +50,9 @@ coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCo
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 dagger-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroidVersion" }
 glide-compose = { module = "com.github.bumptech.glide:compose", version.ref = "composeVersion" }
+hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
+hilt-android-gradle-plugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hiltAndroid" }
+hilt-android-v2481 = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltAndroidVersion" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -69,6 +75,8 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
 androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigationUiKtx" }
+androidx-animation-core-android = { group = "androidx.compose.animation", name = "animation-core-android", version.ref = "animationCoreAndroid" }
+valentinilk-shimmer-compose = { module = "com.valentinilk.shimmer:shimmer-compose", version.ref = "shimmerComposeVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

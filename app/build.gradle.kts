@@ -2,8 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    kotlin("kapt")
     kotlin("plugin.serialization") version "2.0.21"
+    id("dagger.hilt.android.plugin")
     id("com.google.devtools.ksp")
 }
 
@@ -47,6 +47,7 @@ android {
 
 dependencies {
     implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.animation.core.android)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -54,7 +55,7 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.dagger.hilt.android)
-    kapt(libs.hilt.compiler)
+    ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.okhttp)
     implementation(libs.kotlinx.serialization.json)

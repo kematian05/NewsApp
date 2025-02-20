@@ -1,6 +1,8 @@
 package com.example.newsapp.ui
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
@@ -14,7 +16,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
@@ -58,22 +59,24 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
 import com.example.newsapp.R
-import com.example.newsapp.data.domain.Article
+import com.example.newsapp.data.responses.Article
 import com.example.newsapp.viewModels.SavedNewsViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun DetailScreen(
-    navController: NavController,
+    onGoToBack: () -> Unit,
+    isSaved: Boolean,
     article: Article,
-    viewModel: SavedNewsViewModel
+    onSaveClicked: (Article) -> Unit
 ) {
     MaterialTheme {
         Scaffold {
             NewsDetail(
-                navController = navController,
+                onGoToBack = onGoToBack,
                 article = article,
-                viewModel = viewModel
+                isSaved = isSaved,
+                onSaveClicked = onSaveClicked
             )
         }
     }
@@ -83,9 +86,10 @@ fun DetailScreen(
 @SuppressLint("MissingColorAlphaChannel")
 @Composable
 fun NewsDetail(
-    navController: NavController,
+    onGoToBack: () -> Unit,
     article: Article,
-    viewModel: SavedNewsViewModel
+    isSaved: Boolean,
+    onSaveClicked: (Article) -> Unit
 ) {
     val context = LocalContext.current
     Box(
@@ -112,18 +116,17 @@ fun NewsDetail(
                     .align(Alignment.TopEnd)
                     .padding(16.dp)
             ) {
-                DropDownSaveShareMenu(article = article, viewModel = viewModel)
+                DropDownSaveShareMenu(article = article, isSaved = isSaved, onSaveClicked = onSaveClicked)
             }
             Box(
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(16.dp)
                     .background(
-                        color = Color(0xFFD7D7D7).copy(alpha = 0.6f),
-                        shape = CircleShape
+                        color = Color(0xFFD7D7D7).copy(alpha = 0.6f), shape = CircleShape
                     )
             ) {
-                GoBackButton(navController = navController, article = article)
+                GoBackButton(onGoToBack = onGoToBack, article = article)
             }
         }
         Card(
@@ -166,33 +169,28 @@ fun NewsDetail(
                         .padding(top = 16.dp)
                         .height(105.dp)
                 )
-                Text(
-                    text = article.author?.let {
-                        val words = it.split(" ")
-                        val result = if (words.size >= 2) words.take(2).joinToString(" ") else it
-                        result.removeSuffix(",")
-                    } ?: "Vusat Orujov",
-                    style = TextStyle(
-                        color = Color(0xFF0AA7FF),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.End
-                    ), modifier = Modifier
-                        .padding(top = 8.dp)
-                        .height(20.dp)
-                        .align(Alignment.End)
-                )
+                Text(text = article.author?.let {
+                    val words = it.split(" ")
+                    val result = if (words.size >= 2) words.take(2).joinToString(" ") else it
+                    result.removeSuffix(",")
+                } ?: "Vusat Orujov", style = TextStyle(
+                    color = Color(0xFF0AA7FF),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.End
+                ), modifier = Modifier
+                    .padding(top = 8.dp)
+                    .height(20.dp)
+                    .align(Alignment.End))
                 Text(
                     text = article.description,
 //                    text = "Australia, Britain, Canada and the United States have imposed outright bans on Russian oil purchases following Moscow's invasion of Ukraine, but members of the European Union are split.",
-                    maxLines = 5,
-                    style = TextStyle(
+                    maxLines = 5, style = TextStyle(
                         color = Color.Black,
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Left
-                    ),
-                    modifier = Modifier
+                    ), modifier = Modifier
                         .padding(top = 8.dp)
                         .fillMaxWidth()
                 )
@@ -201,8 +199,7 @@ fun NewsDetail(
 //                    text = "(Reuters) - Australia, Britain, Canada and the United States have imposed outright bans on Russian oil purchases following Moscow's invasion of Ukraine, but members of the European Union are split.EU foreign ministers failed to agree on Monday on sanctioning Russian gas and oil supplies, which account for 40% and 27% of the bloc's total use of those commodities respectively.Germany, the EU's top user of Russian crude oil and the Netherlands, a key trading hub, argue that the EU couldn't cut its dependence on Russian supplies overnight.",
                     style = TextStyle(
                         color = Color(0xFF89969C), fontSize = 12.sp, textAlign = TextAlign.Left
-                    ),
-                    modifier = Modifier
+                    ), modifier = Modifier
                         .padding(top = 24.dp)
                         .fillMaxWidth()
                 )
@@ -224,14 +221,11 @@ fun NewsDetail(
 fun DropDownSaveShareMenu(
     modifier: Modifier = Modifier,
     article: Article,
-    viewModel: SavedNewsViewModel
+    isSaved: Boolean,
+    onSaveClicked: (Article) -> Unit,
 ) {
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
-    val isSaved by viewModel.isSaved.collectAsState()
-    LaunchedEffect(article) {
-        viewModel.isArticleSaved(article)
-    }
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -258,10 +252,13 @@ fun DropDownSaveShareMenu(
                         ) {
                             IconButton(onClick = {
                                 Log.d("DetailScreen", "Save clicked")
-                                viewModel.saveArticle(article)
+                                onSaveClicked(article)
                                 expanded = false
-                                if (isSaved) Toast.makeText(context, "Article unsaved", Toast.LENGTH_SHORT).show()
-                                else Toast.makeText(context, "Article saved", Toast.LENGTH_SHORT).show()
+                                if (isSaved) Toast.makeText(
+                                    context, "Article unsaved", Toast.LENGTH_SHORT
+                                ).show()
+                                else Toast.makeText(context, "Article saved", Toast.LENGTH_SHORT)
+                                    .show()
                             }) {
                                 Image(
                                     painter = if (isSaved) painterResource(id = R.drawable.saved_filled)
@@ -280,9 +277,10 @@ fun DropDownSaveShareMenu(
                     },
                     onClick = {
                         Log.d("DetailScreen", "Save clicked")
-                        viewModel.saveArticle(article)
+                        onSaveClicked(article)
                         expanded = false
-                        if (isSaved) Toast.makeText(context, "Article unsaved", Toast.LENGTH_SHORT).show()
+                        if (isSaved) Toast.makeText(context, "Article unsaved", Toast.LENGTH_SHORT)
+                            .show()
                         else Toast.makeText(context, "Article saved", Toast.LENGTH_SHORT).show()
                     },
                 )
@@ -298,8 +296,7 @@ fun DropDownSaveShareMenu(
                                 }
                                 context.startActivity(
                                     Intent.createChooser(
-                                        shareIntent,
-                                        "Share via"
+                                        shareIntent, "Share via"
                                     )
                                 )
                                 expanded = false
@@ -326,8 +323,7 @@ fun DropDownSaveShareMenu(
                         }
                         context.startActivity(
                             Intent.createChooser(
-                                shareIntent,
-                                "Share via"
+                                shareIntent, "Share via"
                             )
                         )
                     },
@@ -338,12 +334,11 @@ fun DropDownSaveShareMenu(
 }
 
 @Composable
-fun GoBackButton(modifier: Modifier = Modifier, article: Article, navController: NavController) {
+fun GoBackButton(modifier: Modifier = Modifier, article: Article, onGoToBack: () -> Unit) {
     IconButton(
         onClick = {
-            navController.popBackStack()
-        },
-        modifier = Modifier
+            onGoToBack()
+        }, modifier = Modifier
             .width(120.dp)
             .height(30.dp)
     ) {
@@ -351,8 +346,7 @@ fun GoBackButton(modifier: Modifier = Modifier, article: Article, navController:
             Icon(
                 imageVector = Icons.AutoMirrored.Default.ArrowBack,
                 contentDescription = "Back",
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
+                modifier = Modifier.align(Alignment.CenterVertically)
             )
             Text(
                 text = article.title.substring(0, 13) + "...",

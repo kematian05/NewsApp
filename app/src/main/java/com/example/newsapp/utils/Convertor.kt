@@ -1,8 +1,8 @@
 package com.example.newsapp.utils
 
-import com.example.newsapp.data.domain.Article
-import com.example.newsapp.data.domain.Source
-import com.example.newsapp.data.domain.SavedArticle
+import com.example.newsapp.data.responses.Article
+import com.example.newsapp.data.responses.Source
+import com.example.newsapp.data.responses.SavedArticle
 
 fun SavedArticle.toArticle(): Article {
     return Article(

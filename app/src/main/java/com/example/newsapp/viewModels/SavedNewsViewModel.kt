@@ -3,44 +3,51 @@ package com.example.newsapp.viewModels
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.newsapp.data.domain.Article
-import com.example.newsapp.data.domain.SavedArticle
+import com.example.newsapp.data.domain.GetSavedArticleUseCase
+import com.example.newsapp.data.domain.IsArticleSavedUseCase
+import com.example.newsapp.data.domain.SaveArticleUseCase
+import com.example.newsapp.data.responses.Article
+import com.example.newsapp.data.responses.SavedArticle
 import com.example.newsapp.db.SavedArticleDatabase
 import com.example.newsapp.utils.toSavedArticle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SavedNewsViewModel(application: Application) : AndroidViewModel(application) {
-    private val db = SavedArticleDatabase.getDatabase(application).savedArticleDao()
-    private val _isSaved = MutableStateFlow(false)
-    val isSaved: StateFlow<Boolean> = _isSaved
+class SavedNewsViewModel @Inject constructor(
+    private val getSavedArticleUseCase: GetSavedArticleUseCase,
+    private val saveArticleUseCase: SaveArticleUseCase,
+    private val isArticleSavedUseCase: IsArticleSavedUseCase
+) : AndroidViewModel(Application()) {
+    private val _state = MutableStateFlow(SavedState())
+    val state = _state.asStateFlow()
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            getSavedArticles()
+        }
+    }
 
     fun saveArticle(article: Article) {
         viewModelScope.launch {
-            if (_isSaved.value) {
-                db.deleteArticle(article.url)
-            } else {
-                db.saveArticle(article.toSavedArticle())
-            }
-            _isSaved.value = !_isSaved.value
+            saveArticleUseCase.invoke(article)
+            getSavedArticles()
         }
     }
 
-    fun deleteArticle(article: Article) {
-        viewModelScope.launch(Dispatchers.IO) {
-            db.deleteArticle(article.url)
+    private suspend fun getSavedArticles() {
+        _state.update { old ->
+            old.copy(
+                savedArticles = getSavedArticleUseCase.invoke()
+            )
         }
     }
 
-    suspend fun getSavedArticles(): List<SavedArticle> {
-        return db.getSavedArticles()
-    }
-
-    fun isArticleSaved(article: Article) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _isSaved.value = db.isArticleSaved(article.url) > 0
-        }
+    suspend fun isArticleSaved(article: Article): Boolean {
+        return isArticleSavedUseCase.invoke(article)
     }
 }

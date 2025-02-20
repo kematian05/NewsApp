@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.newsapp.data.domain.SavedArticle
+import com.example.newsapp.data.responses.SavedArticle
 
 @Dao
 interface SavedArticleDao {

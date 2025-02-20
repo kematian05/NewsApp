@@ -26,7 +26,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,7 +34,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,40 +55,44 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
 import com.example.newsapp.R
-import com.example.newsapp.data.domain.Article
-import com.example.newsapp.data.domain.Language
+import com.example.newsapp.data.responses.Article
+import com.example.newsapp.data.responses.Language
 import com.example.newsapp.utils.disableSplitMotionEvents
 import com.example.newsapp.utils.maxScrollFlingBehavior
-import com.example.newsapp.viewModels.NewsViewModel
-import java.net.URLEncoder
+import com.example.newsapp.viewModels.HomeState
 
 @Composable
 fun HomeScreen(
+    state: HomeState,
     navController: NavController,
-    viewModel: NewsViewModel = hiltViewModel(),
+    onGoToHome: () -> Unit,
+    onGoToSaved: () -> Unit,
+    onGoToDetails: (Article) -> Unit,
+    onLanguageChange: (Language) -> Unit,
+    onSearchTextChange: (String) -> Unit,
     context: Context
 ) {
-    val state by viewModel.state.collectAsState()
     if (state.isLoading) {
-        LoadingScreen(viewModel = viewModel, context = context)
-    } else if (state.error?.isNotEmpty() == true) {
-        Text(text = state.error ?: "Error")
+        LoadingScreen(context = context)
+    } else if (state.error.isNotEmpty()) {
+        Text(text = state.error)
     } else {
         MaterialTheme {
             Scaffold(
                 bottomBar = {
-                    BottomAppBar(navController = navController)
+                    BottomAppBar(
+                        onGoToHome = onGoToHome,
+                        onGoToSaved = onGoToSaved,
+                        navController = navController
+                    )
                 },
                 topBar = {
-                    TopAppBar(viewModel = viewModel)
+                    TopAppBar()
                 },
             ) {
                 LazyColumn(
@@ -102,21 +104,36 @@ fun HomeScreen(
                 ) {
                     item {
                         LatestNewsFeed(
-                            viewModel = viewModel,
-                            navController = navController,
+                            state = state,
+                            onGoToDetails = onGoToDetails,
                             context = context
                         )
                     }
                     item {
-                        Search(viewModel = viewModel, context = context)
+                        Search(
+                            state = state,
+                            onSearchTextChange = onSearchTextChange,
+                            context = context
+                        )
                     }
                     item {
-                        DropDownMenu(modifier = Modifier, viewModel = viewModel, context = context)
+                        DropDownMenu(
+                            state = state,
+                            onLanguageChange = onLanguageChange,
+                            context = context
+                        )
                     }
                     items(state.filteredArticles) { article ->
+                        if (state.isLoadingSearch) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Color.Gray.copy(alpha = 0.3f))
+                            )
+                        }
                         NewsCard(
                             article = article,
-                            navController = navController,
+                            onGoToDetails = onGoToDetails,
                             context = context
                         )
                     }
@@ -129,7 +146,7 @@ fun HomeScreen(
 
 fun getDaySuffix(day: Int): String {
     return when {
-        day in 11..13 -> "th" // Handle 11th, 12th, 13th cases
+        day in 11..13 -> "th"
         else -> when (day % 10) {
             1 -> "st"
             2 -> "nd"
@@ -143,11 +160,10 @@ fun getDaySuffix(day: Int): String {
 @Composable
 fun LatestNewsCard(
     article: Article,
-    viewModel: NewsViewModel,
-    navController: NavController,
+    onGoToDetails: (Article) -> Unit,
     context: Context
 ) {
-    val selectedLanguage = viewModel.selectedLanguage.collectAsState()
+//    val selectedLanguage = viewModel.selectedLanguage.collectAsState()
     Box(
         modifier = Modifier
             .padding(top = 8.dp, start = 16.dp, end = 16.dp, bottom = 8.dp)
@@ -155,9 +171,7 @@ fun LatestNewsCard(
             .width(320.dp)
             .clickable {
                 Log.d("LatestNewsCard", "Clicked on ${article.url}")
-                val encodedUrl = URLEncoder.encode(article.url, "UTF-8")
-                if (navController.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED)
-                    navController.navigate("detail/${encodedUrl}")
+                onGoToDetails(article)
             }
     ) {
         GlideImage(
@@ -181,10 +195,11 @@ fun LatestNewsCard(
                 )
         ) {
             Text(
-                text = when (selectedLanguage.value) {
-                    Language.ENGLISH -> context.getString(R.string.news)
-                    Language.RUSSIAN -> context.getString(R.string.news)
-                },
+//                text = when (selectedLanguage.value) {
+//                    Language.ENGLISH -> context.getString(R.string.news)
+//                    Language.RUSSIAN -> context.getString(R.string.news)
+//                },
+                text = context.getString(R.string.news),
                 style = TextStyle(color = Color.Black, fontSize = 12.sp),
                 modifier = Modifier
                     .fillMaxSize()
@@ -218,36 +233,28 @@ fun LatestNewsCard(
 
 
 @Composable
-fun LatestNewsFeed(viewModel: NewsViewModel, navController: NavController, context: Context) {
+fun LatestNewsFeed(state: HomeState, onGoToDetails: (Article) -> Unit, context: Context) {
     LazyRow(
         flingBehavior = maxScrollFlingBehavior(),
         modifier = Modifier
             .disableSplitMotionEvents()
     ) {
-        items(viewModel.state.value.headlines) { article ->
+        items(state.headlines) { article ->
             LatestNewsCard(
                 article = article,
-                viewModel = viewModel,
-                navController = navController,
+                onGoToDetails = onGoToDetails,
                 context = context
             )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Search(viewModel: NewsViewModel, context: Context) {
-    val selectedLanguage = viewModel.selectedLanguage.collectAsState()
-    val searchHint = when (selectedLanguage.value) {
-        Language.ENGLISH -> context.getString(R.string.search)
-        Language.RUSSIAN -> context.getString(R.string.search)
-    }
-    val text by viewModel.searchText
+fun Search(state: HomeState, onSearchTextChange: (String) -> Unit, context: Context) {
     val keyboardController = LocalSoftwareKeyboardController.current
-    TextField(value = text, onValueChange = {
-        viewModel.onSearchTextChanged(it)
-    }, placeholder = { Text(text = searchHint) }, textStyle = TextStyle(
+    TextField(value = state.searchQuery, onValueChange = {
+        onSearchTextChange(it)
+    }, placeholder = { Text(text = context.getString(R.string.search)) }, textStyle = TextStyle(
         color = Color.Black, fontSize = 16.sp
     ), colors = TextFieldDefaults.colors(
         focusedIndicatorColor = Color.Transparent,
@@ -274,7 +281,8 @@ fun Search(viewModel: NewsViewModel, context: Context) {
 @Composable
 fun DropDownMenu(
     modifier: Modifier = Modifier,
-    viewModel: NewsViewModel = hiltViewModel(),
+    state: HomeState,
+    onLanguageChange: (Language) -> Unit,
     context: Context
 ) {
     val langChanged = Toast.makeText(
@@ -296,13 +304,13 @@ fun DropDownMenu(
 //            modifier = Modifier.fillMaxSize()
         ) {
             DropdownMenuItem(text = { Text("EN") }, onClick = {
-                viewModel.changeLanguage(Language.ENGLISH, context)
+                onLanguageChange(Language.ENGLISH)
                 expanded = false
                 langChanged.setText("Language changed to English")
                 langChanged.show()
             })
             DropdownMenuItem(text = { Text("RU") }, onClick = {
-                viewModel.changeLanguage(Language.RUSSIAN, context)
+                onLanguageChange(Language.RUSSIAN)
                 expanded = false
                 langChanged.setText("Язык изменен на русский")
                 langChanged.show()
@@ -315,6 +323,6 @@ fun DropDownMenu(
 @Composable
 fun Testing() {
 //    BottomAppBar(navController = NavController(LocalContext.current))
-    DropDownMenu(viewModel = NewsViewModel(), context = LocalContext.current)
+    DropDownMenu(state = HomeState(), onLanguageChange = {}, context = LocalContext.current)
 //    HomeScreen(navController = NavController(LocalContext.current), viewModel = NewsViewModel())
 }

@@ -21,7 +21,7 @@ import androidx.navigation.NavController
 import com.example.newsapp.R
 
 @Composable
-fun BottomAppBar(navController: NavController) {
+fun BottomAppBar(onGoToHome: () -> Unit, onGoToSaved: () -> Unit, navController: NavController) {
     Column(
         modifier = Modifier
             .navigationBarsPadding()
@@ -45,10 +45,7 @@ fun BottomAppBar(navController: NavController) {
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             IconButton(onClick = {
-                if (navController.currentBackStackEntry?.destination?.route != "home") {
-                    navController.popBackStack()
-                    navController.navigate("home")
-                }
+                onGoToHome()
             }) {
                 Image(
                     painter = if (navController.currentBackStackEntry?.destination?.route == "home") {
@@ -59,10 +56,7 @@ fun BottomAppBar(navController: NavController) {
                 )
             }
             IconButton(onClick = {
-                if (navController.currentBackStackEntry?.destination?.route != "saved") {
-                    navController.popBackStack()
-                    navController.navigate("saved")
-                }
+                onGoToSaved()
             }) {
                 Image(
                     painter = if (navController.currentBackStackEntry?.destination?.route == "saved") {

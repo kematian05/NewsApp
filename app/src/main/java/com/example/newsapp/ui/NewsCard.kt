@@ -15,10 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,24 +35,19 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
 import com.example.newsapp.R
-import com.example.newsapp.data.domain.Article
-import com.example.newsapp.data.domain.Language
-import com.example.newsapp.viewModels.NewsViewModel
-import com.google.gson.Gson
+import com.example.newsapp.data.responses.Article
 import java.net.URLEncoder
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun NewsCard(article: Article, navController: NavController, context: Context) {
+fun NewsCard(article: Article, onGoToDetails: (Article) -> Unit, context: Context) {
     Box(
         modifier = Modifier
             .padding(16.dp)
             .fillMaxWidth()
             .height(80.dp)
             .clickable {
-                val encodedUrl = URLEncoder.encode(article.url, "UTF-8")
-                if (navController.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED)
-                    navController.navigate("detail/${encodedUrl}")
+                onGoToDetails(article)
             },
     ) {
         Log.d("NewsCard", "Image URL: ${article.urlToImage}")

@@ -25,12 +25,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.newsapp.R
-import com.example.newsapp.data.domain.Language
+import com.example.newsapp.data.responses.Language
 import com.example.newsapp.viewModels.NewsViewModel
 
 @Composable
-fun LoadingScreen(viewModel: NewsViewModel, context: Context) {
-    val selectedLanguage = viewModel.selectedLanguage.collectAsState()
+fun LoadingScreen(context: Context) {
+//    val selectedLanguage = viewModel.selectedLanguage.collectAsState()
     val infiniteTransition = rememberInfiniteTransition()
     val alpha by infiniteTransition.animateFloat(
         initialValue = 0.3f,
@@ -52,10 +52,11 @@ fun LoadingScreen(viewModel: NewsViewModel, context: Context) {
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = when (selectedLanguage.value) {
-                    Language.ENGLISH -> context.getString(R.string.loading)
-                    Language.RUSSIAN -> context.getString(R.string.loading)
-                },
+//                text = when (selectedLanguage.value) {
+//                    Language.ENGLISH -> context.getString(R.string.loading)
+//                    Language.RUSSIAN -> context.getString(R.string.loading)
+//                },
+                text = context.getString(R.string.loading),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black.copy(alpha = alpha)

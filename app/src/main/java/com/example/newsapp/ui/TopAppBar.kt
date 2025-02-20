@@ -26,8 +26,8 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun TopAppBar(viewModel: NewsViewModel) {
-    val selectedLanguage = viewModel.selectedLanguage.collectAsState()
+fun TopAppBar() {
+//    val selectedLanguage = viewModel.selectedLanguage.collectAsState()
     Column(
         modifier = Modifier
 //            .systemBarsPadding()

@@ -1,15 +1,15 @@
 package com.example.newsapp.data.repository
 
-import android.util.Log
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.newsapp.api.ApiClient
-import com.example.newsapp.data.domain.Article
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-import retrofit2.awaitResponse
+import com.example.newsapp.api.NewsApi
+import com.example.newsapp.data.domain.NetworkModule
+import com.example.newsapp.data.responses.Article
 import javax.inject.Inject
 
-class NewsRepository @Inject constructor() {
+class NewsRepository @Inject constructor(private val newsApi: NewsApi) {
+
+    suspend fun getArticles(query: String): List<Article> {
+        val response = newsApi.getArticles(query, "215629b8cdd24d6f8e5beeeef66c1dc3")
+        return response.articles
+    }
 
 }

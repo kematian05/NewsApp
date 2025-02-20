@@ -15,26 +15,35 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
-import com.example.newsapp.data.domain.SavedArticle
+import com.example.newsapp.data.responses.Article
+import com.example.newsapp.data.responses.SavedArticle
 import com.example.newsapp.utils.disableSplitMotionEvents
 import com.example.newsapp.utils.toArticle
 import com.example.newsapp.viewModels.NewsViewModel
 import com.example.newsapp.viewModels.SavedNewsViewModel
+import com.example.newsapp.viewModels.SavedState
 
 @Composable
-fun SavedScreen(navController: NavController, viewModel: SavedNewsViewModel, viewModel2: NewsViewModel, context: Context) {
-    val savedArticles = remember { mutableStateOf<List<SavedArticle>>(emptyList()) }
-    LaunchedEffect(Unit) {
-        savedArticles.value = viewModel.getSavedArticles()
-    }
-    Log.d("SavedScreen", "Saved articles: ${savedArticles.value.size}")
+fun SavedScreen(
+    navController: NavController,
+    onGoToHome: () -> Unit,
+    onGoToSaved: () -> Unit,
+    onGoToDetails: (Article) -> Unit,
+    state: SavedState,
+    context: Context
+) {
+    Log.d("SavedScreen", "Saved articles: ${state.savedArticles.size}")
     MaterialTheme {
         Scaffold(
             bottomBar = {
-                BottomAppBar(navController = navController)
+                BottomAppBar(
+                    onGoToHome = onGoToHome,
+                    onGoToSaved = onGoToSaved,
+                    navController = navController
+                )
             },
             topBar = {
-                TopAppBar(viewModel = viewModel2)
+                TopAppBar()
             },
         ) {
             LazyColumn(
@@ -44,9 +53,13 @@ fun SavedScreen(navController: NavController, viewModel: SavedNewsViewModel, vie
                     .disableSplitMotionEvents(),
                 verticalArrangement = Arrangement.Top
             ) {
-                items(savedArticles.value.size) { index ->
-                    val article = savedArticles.value[index]
-                    NewsCard(article = article.toArticle(), navController = navController, context = context)
+                items(state.savedArticles.size) { index ->
+                    val article = state.savedArticles[index]
+                    NewsCard(
+                        article = article.toArticle(),
+                        onGoToDetails = onGoToDetails,
+                        context = context
+                    )
                 }
             }
         }

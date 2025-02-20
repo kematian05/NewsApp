@@ -1,4 +1,4 @@
-package com.example.newsapp.data.domain
+package com.example.newsapp.data.responses
 
 enum class Language(val code: String) {
     ENGLISH("en"),
